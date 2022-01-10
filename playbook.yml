@@ -1,11 +1,15 @@
 - hosts: localhost
-  vars:
-    target_user:
+  vars_prompt:
+    - name: target_user
       prompt: What is your Ubuntu username?
-    git_full_name:
+      private: no
+    - name: git_full_name
       prompt: What is your Git full name?
-    git_email:
-      prompt: What is your Git Email?
+      private: no
+    - name: git_email
+      prompt: What is your Git email?
+      private: no
+  vars:
     gnome_user: "{{ target_user }}"
     gnome_extensions:
       - id: 4248
