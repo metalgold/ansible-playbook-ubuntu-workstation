@@ -12,11 +12,11 @@
   vars:
     gnome_user: "{{ target_user }}"
     gnome_extensions:
-      - id: 4248
+      - id: 4248 # audio switcher 40
         enable: yes
-      - id: 1160
+      - id: 1160 # dash to panel
         enable: yes
-      - id: 1262
+      - id: 1262 # bing wallpaper changer
         enable: yes
   roles:
     - role: gantsign.inotify
