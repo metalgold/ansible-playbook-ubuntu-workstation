@@ -1,0 +1,265 @@
+- hosts: localhost
+  vars:
+    target_user:
+      prompt: What is your Ubuntu username?
+    git_full_name:
+      prompt: What is your Git full name?
+    git_email:
+      prompt: What is your Git Email?
+    gnome_user: "{{ target_user }}"
+    gnome_extensions:
+      - id: 4248
+        enable: yes
+      - id: 1160
+        enable: yes
+      - id: 1262
+        enable: yes
+  roles:
+    - role: gantsign.inotify
+      inotify_max_user_watches: 524288
+    - role: petermosmans.customize-gnome
+    - role: gantsign.antigen
+      users:
+        - username: "{{ target_user }}"
+          antigen_libraries:
+            - name: oh-my-zsh
+          antigen_theme:
+            name: romkatv/powerlevel10k
+          antigen_bundles:
+            - name: zsh-syntax-highlighting
+              url: zsh-users/zsh-syntax-highlighting
+            - name: zsh-autosuggestions
+              url: zsh-users/zsh-autosuggestions
+            - name: powerlevel10k
+              url: romkatv/powerlevel10k
+      tags: "antigen"
+    - role: diodonfrost.p10k
+      tags: "p10k"
+    - role: gantsign.sdkman
+      sdkman_users:
+        - "{{ target_user }}"
+    - role: gantsign.sdkman_init
+      users:
+        - username: "{{ target_user }}"
+      sdkman_install:
+        - candidate: java
+          version: '11.0.11.hs-adpt'
+      sdkman_default:
+        java: '11.0.11.hs-adpt'
+    - role: morgangraphics.ansible_role_nvm
+      default: true
+      nodejs_version: "14.18.2"
+      nvm_profile: "/home/{{ target_user }}/.zshrc"
+      become: true
+      become_user: "{{ target_user }}"
+    - role: robertdebock.npm
+      become: true
+  tasks:
+    - name: file limits
+      community.general.pam_limits:
+        domain: "{{ target_user }}"
+        limit_type: soft
+        limit_item: nofile
+        value: '64000'
+      become: true
+    - name: Update and upgrade apt packages
+      become: true
+      apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 86400 #One day
+    - name: Install all packages
+      ansible.builtin.package:
+        name:
+          - docker.io
+          - heif-gdk-pixbuf
+          - curl
+          - direnv
+          - indicator-cpufreq
+          - powertop
+          - powerstat
+          - s-tui
+          - build-essential
+          - fzf
+          - keepassxc
+          - rcm
+          - zsh
+          - thunderbird
+          - vim
+          - maven
+          - zeal
+          - tldr
+          - timewarrior
+          - taskwarrior
+          - gopass
+          - golang
+          - vdirsyncer
+          - khal
+          - gnupg2
+          - git
+          - rng-tools
+        state: latest
+      become: true
+    - name: vscode
+      apt:
+        deb: https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64
+      become: true
+    - name: webex
+      apt:
+        deb: https://binaries.webex.com/WebexDesktop-Ubuntu-Official-Package/Webex.deb
+      become: true
+    - name: mattermost
+      apt:
+        deb: https://releases.mattermost.com/desktop/5.0.2/mattermost-desktop-5.0.2-linux-amd64.deb
+      become: true
+    - name: zoom
+      apt:
+        deb: https://cdn.zoom.us/prod/5.9.1.1380/zoom_amd64.deb
+      become: true
+    - name: slack
+      apt:
+        deb: https://downloads.slack-edge.com/releases/linux/4.23.0/prod/x64/slack-desktop-4.23.0-amd64.deb
+      become: true
+    - name: npm yarn
+      npm:
+        name: yarn
+        global: yes
+      become: true
+    - name: npm vue clie-service
+      npm:
+        name: '@vue/cli-service'
+        global: yes
+      become: true
+    - name: Check if Jetbrains Toolbox is already installed
+      stat:
+        path: ~/.local/share/JetBrains/Toolbox/bin/jetbrains-toolbox
+      register: is_toolbox_installed
+      become: true
+      become_user: "{{ target_user }}"
+    - name: Jetbrains Toolbox
+      ansible.builtin.shell: |
+        wget -cO jetbrains-toolbox.tar.gz "https://data.services.jetbrains.com/products/download?platform=linux&code=TBA"
+        tar -xzf jetbrains-toolbox.tar.gz
+        DIR=$(find . -maxdepth 1 -type d -name jetbrains-toolbox-\* -print | head -n1)
+        cd $DIR
+        ./jetbrains-toolbox
+        cd ..
+        rm -r $DIR
+        rm jetbrains-toolbox.tar.gz
+      become: true
+      become_user: "{{ target_user }}"
+      delegate_to: localhost
+      when: not is_toolbox_installed.stat.exists
+    - name: Check if Homebrew is already installed
+      stat:
+        path: /home/linuxbrew/.linuxbrew/bin/brew
+      register: is_brew_installed
+      become: yes
+      become_user: "{{ target_user }}"
+    - name: Install Homebrew
+      ansible.builtin.shell: |
+        yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        eval $(/opt/homebrew/bin/brew shellenv)
+      when: not is_brew_installed.stat.exists
+      become: yes
+      become_user: "{{ target_user }}"
+    - name: brew
+      community.general.homebrew:
+        name:
+          - terraform
+          - saml2aws
+          - awscli
+          - k9s
+          - helm
+          - kubectl
+          - kubectx
+          - docker-compose
+        path: /home/linuxbrew/.linuxbrew/bin/
+      become: yes
+      become_user: "{{ target_user }}"
+      when: is_brew_installed
+    - name: git email
+      community.general.git_config:
+        name: user.email
+        value: "{{ git_email }}"
+        scope: global
+      become: yes
+      become_user: "{{ target_user }}"
+    - name: git name
+      community.general.git_config:
+        name: user.name
+        value: "{{ git_full_name }}"
+        scope: global
+      become: yes
+      become_user: "{{ target_user }}"
+    - name: Tap To Click
+      dconf:
+        key: /org/gnome/desktop/peripherals/touchpad/tap-to-click
+        value: "true"
+        state: present
+      tags: "dconf"
+    - name: Window Layout
+      dconf:
+        key: "/org/gnome/desktop/wm/preferences/button-layout"
+        value: >
+          ":minimize,maximize,close"
+        state: present
+      tags: "dconf"
+    - name: Middle paste
+      dconf:
+        key: /org/gnome/desktop/interface/gtk-enable-primary-paste
+        value: "false"
+        state: present
+      tags: "dconf"
+    - name: Hinting
+      dconf:
+        key: /org/gnome/desktop/interface/font-hinting
+        value: "'full'"
+        state: present
+      tags: "dconf"
+    - name: Antialias
+      dconf:
+        key: /org/gnome/desktop/interface/font-antialiasing
+        value: "'rgba'"
+        state: present
+      tags: "dconf"
+    - name: Disable Hot Corners
+      dconf:
+        key: /org/gnome/desktop/interface/enable-hot-corners
+        value: "false"
+        state: present
+      tags: "dconf"
+    - name: Show Battery percentage
+      dconf:
+        key: /org/gnome/desktop/interface/show-battery-percentage
+        value: "true"
+        state: present
+      tags: "dconf"
+    - name: Clock-Show-Weekday
+      dconf:
+        key: /org/gnome/desktop/interface/clock-show-weekday
+        value: "true"
+        state: present
+    - name: Show-Weekdate
+      dconf:
+        key: /org/gnome/desktop/calendar/show-weekdate
+        value: "true"
+        state: present
+    - name: Clock-Show-Seconds
+      dconf:
+        key: /org/gnome/desktop/interface/clock-show-seconds
+        value: "true"
+        state: present
+    - name: docker daemon
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      become: true
+    - name: change to zsh
+      ansible.builtin.user:
+        name: "{{ target_user }}"
+        shell: /bin/zsh
+        groups: "docker"
+        append: true
+      become: true
