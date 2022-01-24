@@ -75,6 +75,7 @@
     - name: Install all packages
       ansible.builtin.package:
         name:
+          - network-manager-openvpn
           - docker.io
           - heif-gdk-pixbuf
           - curl
