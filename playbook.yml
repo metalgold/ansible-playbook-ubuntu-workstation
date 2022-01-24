@@ -105,6 +105,14 @@
           - rng-tools
         state: latest
       become: true
+    - name: google-chrome
+      apt:
+        deb: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+      become: true
+    - name: dropbox
+      apt:
+        deb: https://linux.dropbox.com/packages/ubuntu/dropbox_2020.03.04_amd64.deb
+      become: true
     - name: vscode
       apt:
         deb: https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64
