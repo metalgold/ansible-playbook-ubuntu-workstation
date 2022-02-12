@@ -3,12 +3,12 @@
     - name: target_user
       prompt: What is your Ubuntu username?
       private: no
-    - name: git_full_name
-      prompt: What is your Git full name?
-      private: no
-    - name: git_email
-      prompt: What is your Git email?
-      private: no
+#    - name: git_full_name
+#      prompt: What is your Git full name?
+#      private: no
+#    - name: git_email
+#      prompt: What is your Git email?
+#      private: no
   vars:
     gnome_user: "{{ target_user }}"
     gnome_extensions:
@@ -192,20 +192,20 @@
       become: yes
       become_user: "{{ target_user }}"
       when: is_brew_installed
-    - name: git email
-      community.general.git_config:
-        name: user.email
-        value: "{{ git_email }}"
-        scope: global
-      become: yes
-      become_user: "{{ target_user }}"
-    - name: git name
-      community.general.git_config:
-        name: user.name
-        value: "{{ git_full_name }}"
-        scope: global
-      become: yes
-      become_user: "{{ target_user }}"
+#    - name: git email
+#      community.general.git_config:
+#        name: user.email
+#        value: "{{ git_email }}"
+#        scope: global
+#      become: yes
+#      become_user: "{{ target_user }}"
+#    - name: git name
+#      community.general.git_config:
+#        name: user.name
+#        value: "{{ git_full_name }}"
+#        scope: global
+#      become: yes
+#      become_user: "{{ target_user }}"
     - name: Tap To Click
       dconf:
         key: /org/gnome/desktop/peripherals/touchpad/tap-to-click
