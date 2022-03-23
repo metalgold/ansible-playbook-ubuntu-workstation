@@ -118,23 +118,6 @@
       become: yes
       become_user: "{{ target_user }}"
       when: is_brew_installed
-    - name: Tap To Click
-      dconf:
-        key: /org/gnome/desktop/peripherals/touchpad/tap-to-click
-        value: "true"
-        state: present
-      tags: "dconf"
-    - name: Window Layout
-      dconf:
-        key: "/org/gnome/desktop/wm/preferences/button-layout"
-        value: >
-          ":minimize,maximize,close"
-        state: present
-      tags: "dconf"
-    - name: Middle paste
-      dconf:
-        key: /org/gnome/desktop/interface/gtk-enable-primary-paste
-        value: "false"
     - name: change to zsh
       ansible.builtin.user:
         name: "{{ target_user }}"
