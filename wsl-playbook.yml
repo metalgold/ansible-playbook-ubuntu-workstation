@@ -31,9 +31,9 @@
         - username: "{{ target_user }}"
       sdkman_install:
         - candidate: java
-          version: '11.0.11.hs-adpt'
+          version: '11.0.14-tem'
       sdkman_default:
-        java: '11.0.11.hs-adpt'
+        java: '11.0.14-tem'
     - role: morgangraphics.ansible_role_nvm
       default: true
       nodejs_version: "14.18.2"
