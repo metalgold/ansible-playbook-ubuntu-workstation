@@ -44,12 +44,14 @@
         - "{{ target_user }}"
     - role: gantsign.sdkman_init
       users:
-        - username: "{{ target_user }}"
-      sdkman_install:
-        - candidate: java
-          version: '11.0.14-tem'
-      sdkman_default:
-        java: '11.0.14-tem'
+        - username: "{{ ansible_user_id }}"
+          sdkman_install:
+            - candidate: java
+              version: '11.0.11.hs-adpt'
+            - candidate: java
+              version: '17.0.3-tem'
+          sdkman_default:
+            java: '17.0.3-tem'
     - role: morgangraphics.ansible_role_nvm
       default: true
       nodejs_version: "14.18.2"
