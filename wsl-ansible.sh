@@ -1,5 +1,5 @@
 #fix ansible
-sudo apt install python3-pip
+sudo apt install -y python3-pip
 sudo pip install -U "ansible<2.10"
 
 sudo ansible-galaxy install -r requirements.yml
