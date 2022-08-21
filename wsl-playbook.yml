@@ -6,6 +6,7 @@
   vars:
     gnome_user: "{{ target_user }}"
   roles:
+    - role: andrewrothstein.starship
     - role: gantsign.antigen
       users:
         - username: "{{ target_user }}"
