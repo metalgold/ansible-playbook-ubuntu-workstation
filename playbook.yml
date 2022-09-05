@@ -46,8 +46,6 @@
       default: true
       nodejs_version: "14.18.2"
       nvm_profile: "/home/{{ ansible_user_id }}/.zshrc"
-      become: true
-      become_user: "{{ ansible_user_id }}"
     - role: robertdebock.npm
       become: true
     - role: andrewrothstein.starship
@@ -140,8 +138,6 @@
       stat:
         path: ~/.local/share/JetBrains/Toolbox/bin/jetbrains-toolbox
       register: is_toolbox_installed
-      become: true
-      become_user: "{{ ansible_user_id }}"
     - name: Jetbrains Toolbox
       ansible.builtin.shell: |
         wget -cO jetbrains-toolbox.tar.gz "https://data.services.jetbrains.com/products/download?platform=linux&code=TBA"
@@ -152,24 +148,18 @@
         cd ..
         rm -r $DIR
         rm jetbrains-toolbox.tar.gz
-      become: true
-      become_user: "{{ ansible_user_id }}"
       delegate_to: localhost
       when: not is_toolbox_installed.stat.exists
     - name: Check if Homebrew is already installed
       stat:
         path: /home/linuxbrew/.linuxbrew/bin/brew
       register: is_brew_installed
-      become: yes
-      become_user: "{{ ansible_user_id }}"
     - name: Install Homebrew
       ansible.builtin.shell: |
         yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         eval $(/opt/homebrew/bin/brew shellenv)
         echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.zshrc
       when: not is_brew_installed.stat.exists
-      become: yes
-      become_user: "{{ ansible_user_id }}"
     - name: brew
       community.general.homebrew:
         name:
@@ -182,8 +172,6 @@
           - kubectx
           - docker-compose
         path: /home/linuxbrew/.linuxbrew/bin/
-      become: yes
-      become_user: "{{ ansible_user_id }}"
       when: is_brew_installed
     - name: Tap To Click
       dconf:
