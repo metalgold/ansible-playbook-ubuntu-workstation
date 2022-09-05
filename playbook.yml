@@ -2,7 +2,7 @@
   vars:
     gnome_user: "{{ ansible_user_id }}"
     gnome_extensions:
-      - id: 4248 # audio switcher 40
+      - id: 1262 # bing wallpaper changer
         enable: yes
   roles:
     - role: gantsign.inotify
