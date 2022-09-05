@@ -1,10 +1,6 @@
 - hosts: localhost
-  vars_prompt:
-    - name: target_user
-      prompt: What is your Ubuntu username?
-      private: no
   vars:
-    gnome_user: "{{ target_user }}"
+    gnome_user: "{{ ansible_user_id }}"
     gnome_extensions:
       - id: 4248 # audio switcher 40
         enable: yes
@@ -18,7 +14,7 @@
     - role: petermosmans.customize-gnome
     - role: gantsign.antigen
       users:
-        - username: "{{ target_user }}"
+        - username: "{{ ansible_user_id }}"
           antigen_libraries:
             - name: oh-my-zsh
           antigen_theme:
@@ -35,7 +31,7 @@
       tags: "p10k"
     - role: gantsign.sdkman
       sdkman_users:
-        - "{{ target_user }}"
+        - "{{ ansible_user_id }}"
     - role: gantsign.sdkman_init
       users:
         - username: "{{ ansible_user_id }}"
@@ -49,9 +45,9 @@
     - role: morgangraphics.ansible_role_nvm
       default: true
       nodejs_version: "14.18.2"
-      nvm_profile: "/home/{{ target_user }}/.zshrc"
+      nvm_profile: "/home/{{ ansible_user_id }}/.zshrc"
       become: true
-      become_user: "{{ target_user }}"
+      become_user: "{{ ansible_user_id }}"
     - role: robertdebock.npm
       become: true
     - role: andrewrothstein.starship
@@ -59,7 +55,7 @@
   tasks:
     - name: file limits
       community.general.pam_limits:
-        domain: "{{ target_user }}"
+        domain: "{{ ansible_user_id }}"
         limit_type: soft
         limit_item: nofile
         value: '64000'
@@ -145,7 +141,7 @@
         path: ~/.local/share/JetBrains/Toolbox/bin/jetbrains-toolbox
       register: is_toolbox_installed
       become: true
-      become_user: "{{ target_user }}"
+      become_user: "{{ ansible_user_id }}"
     - name: Jetbrains Toolbox
       ansible.builtin.shell: |
         wget -cO jetbrains-toolbox.tar.gz "https://data.services.jetbrains.com/products/download?platform=linux&code=TBA"
@@ -157,7 +153,7 @@
         rm -r $DIR
         rm jetbrains-toolbox.tar.gz
       become: true
-      become_user: "{{ target_user }}"
+      become_user: "{{ ansible_user_id }}"
       delegate_to: localhost
       when: not is_toolbox_installed.stat.exists
     - name: Check if Homebrew is already installed
@@ -165,7 +161,7 @@
         path: /home/linuxbrew/.linuxbrew/bin/brew
       register: is_brew_installed
       become: yes
-      become_user: "{{ target_user }}"
+      become_user: "{{ ansible_user_id }}"
     - name: Install Homebrew
       ansible.builtin.shell: |
         yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -173,7 +169,7 @@
         echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.zshrc
       when: not is_brew_installed.stat.exists
       become: yes
-      become_user: "{{ target_user }}"
+      become_user: "{{ ansible_user_id }}"
     - name: brew
       community.general.homebrew:
         name:
@@ -187,22 +183,8 @@
           - docker-compose
         path: /home/linuxbrew/.linuxbrew/bin/
       become: yes
-      become_user: "{{ target_user }}"
+      become_user: "{{ ansible_user_id }}"
       when: is_brew_installed
-#    - name: git email
-#      community.general.git_config:
-#        name: user.email
-#        value: "{{ git_email }}"
-#        scope: global
-#      become: yes
-#      become_user: "{{ target_user }}"
-#    - name: git name
-#      community.general.git_config:
-#        name: user.name
-#        value: "{{ git_full_name }}"
-#        scope: global
-#      become: yes
-#      become_user: "{{ target_user }}"
     - name: Tap To Click
       dconf:
         key: /org/gnome/desktop/peripherals/touchpad/tap-to-click
@@ -269,7 +251,7 @@
       become: true
     - name: change to zsh
       ansible.builtin.user:
-        name: "{{ target_user }}"
+        name: "{{ ansible_user_id }}"
         shell: /bin/zsh
         groups: "docker"
         append: true
