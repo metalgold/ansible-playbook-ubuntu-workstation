@@ -4,10 +4,6 @@
     gnome_extensions:
       - id: 4248 # audio switcher 40
         enable: yes
-      - id: 1160 # dash to panel
-        enable: yes
-      - id: 1262 # bing wallpaper changer
-        enable: yes
   roles:
     - role: gantsign.inotify
       inotify_max_user_watches: 524288
