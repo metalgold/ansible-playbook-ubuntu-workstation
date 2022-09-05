@@ -3,12 +3,6 @@
     - name: target_user
       prompt: What is your Ubuntu username?
       private: no
-#    - name: git_full_name
-#      prompt: What is your Git full name?
-#      private: no
-#    - name: git_email
-#      prompt: What is your Git email?
-#      private: no
   vars:
     gnome_user: "{{ target_user }}"
     gnome_extensions:
@@ -60,6 +54,8 @@
       become_user: "{{ target_user }}"
     - role: robertdebock.npm
       become: true
+    - role: andrewrothstein.starship
+      become: true
   tasks:
     - name: file limits
       community.general.pam_limits:
@@ -82,7 +78,6 @@
           - heif-gdk-pixbuf
           - curl
           - direnv
-          - indicator-cpufreq
           - powertop
           - powerstat
           - s-tui
